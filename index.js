@@ -63,21 +63,20 @@ async function main(){
     // async can be an ARROW FUNCTION
     app.post("/", async (req, res) => {
         console.log("req received")
+        console.log("Req.body: " + req.body);
         // what must the document have? adding a new post test...
         try{
             const result = await db.collection(USERS_COLLECTION).insertOne({
-                // when posting the request, you have to get the values from the post request's body itself, not from the app
-                particulars:
-                {
-                    username: req.body.username,
-                    email: req.body.email,
-                    favoriteCard: req.body.favoriteCard
-                }
+                // when posting the request, you have to get the values from the post request's body itself, not from this app.
+                // ex. req.body.username would be "username: <value>" in the request's body.
+                "username": req.body.username,
+                "email": req.body.email,
+                "favoriteCard": req.body.favoriteCard
             });
             res.status(200);
             // send to the response body
-            res.send(result);
-            //res.json({result:result})
+            //res.send(result);
+            res.json({result:result})
             console.log("Request sent!");
             
         } catch (e){
