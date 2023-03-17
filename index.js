@@ -5,8 +5,11 @@ const express = require("express");
 require('dotenv').config();
 const app = express();
 
+// retrieve URI (sensitive info) from .env file
 const mongoURI = process.env.MONGO_URI;
-const DATABASE = "RoyaleRavesDB"
+// the database will be the main database to access
+const DATABASE = "RoyaleRavesDB";
+const COLLECTION = "posts";
 
 // for Express to talk to Mongo, we need a client
 // this client is for nodejs
@@ -28,14 +31,32 @@ async function main(){
 
 
     // sanity test to see that our server works
-    app.get("/", function(req,res){
+    // first route, the home page
+
+    // if we are doing await in app.get, the function needs to be an async function
+    app.get("/", async function(req,res){
         // log in the terminal
         console.log("Hello world");
         console.log("hi");
         // send any data to the server
         res.send("YOOOOOooooo");
+        
+        // select the first 3 documents
+        // equivalent: db.RoyaleRayesDB.find({}).limit(3)
+        // will take a while because it's an async function
+        const listings = await db.collection(COLLECTION)
+        .find({})
+        .limit(3)
+        .toArray();
+        console.log(listings);
     })
 }
+
+/*
+async function connect(uri, dbname){
+    let client = await MongoClient.connect(uri, {"useUnifiedTopology": true});
+}
+*/
 
 // call main before listening
 main();
