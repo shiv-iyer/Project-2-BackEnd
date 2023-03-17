@@ -52,7 +52,7 @@ async function main(){
         // will take a while because it's an async function
         const listings = await db.collection(USERS_COLLECTION)
         .find({})
-        .limit(3)
+        .limit(20 )
         .toArray();
 
         // console log the listings to ensure that it works
@@ -65,7 +65,19 @@ async function main(){
         console.log("req received")
         console.log("Req.body: " + req.body);
         // what must the document have? adding a new post test...
+        // if req.body doesn't have a username
+        if (!req.body.username){
+            // error 400
+            res.status(400);
+            res.json({
+                "Error": "Please provide a username!"
+            });
+            // end the function, skip the rest of the code.
+            return;
+        }   
+
         try{
+            // this inserts one  document to the database!
             const result = await db.collection(USERS_COLLECTION).insertOne({
                 // when posting the request, you have to get the values from the post request's body itself, not from this app.
                 // ex. req.body.username would be "username: <value>" in the request's body.
@@ -80,12 +92,20 @@ async function main(){
             console.log("Request sent!");
             
         } catch (e){
-            res.status(500);
+            res.status(503);
             res.send({
                 error: "Internal server error. Please contact Haikal."
             });
             console.log(e);
         }
+    });
+
+    // NEW APP.GET
+    app.get("/filtering", (req,res) => {
+        res.send("Filter yay");
+        console.log("Req query: " + req.query);
+        // this will log if the query string (anything after ? in the url) has an email key value pair (e.g. "<url>/?email=<email value>") logs email value
+        console.log(req.query.email);
     });
 }
 
