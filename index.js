@@ -4,6 +4,7 @@ const express = require("express");
 // require the env file, in order to safely retrieve the MongoDB URI. need to specify the path of the file, otherwise
 // will return undefined! require dotenv just finds a file called '.env' by default.
 require('dotenv').config();
+const {ObjectId} = require("mongodb");
 const app = express();
 const PORT = 3000;
 
@@ -133,6 +134,32 @@ async function main(){
 
         res.status(200);
         res.json({listings});
+    });
+
+    // PUT replaces one existing resource with an ENTIRELY NEW RESOURCE
+    // when writing in the URL, just put the ID, no need for a colon
+    app.put("/user/:_id", async (req, res) => {
+        const userID = req.params._id;
+
+        const response = await db.collection(USERS_COLLECTION)
+                               .updateOne({
+                                    // the id of the document to be updated
+                                    "_id": new ObjectId(userID)
+                               }, {
+                                // $set updates in mongoDB
+                                // update each parameter with the body parameters.
+                                "$set": {
+                                    "username": req.body.username,
+                                    "email": req.body.email,
+                                    "favoriteCard": req.body.favoriteCard
+                                    // if you don't want to change it, you can send back the OG. everything needs to be written for put,
+                                    // since it is updating it completely by replacing with new data.
+                                }
+                               });
+        res.status(200);
+        res.json(response);
+
+        // works! just remember to do content-type: Application/json, and raw in body in postman!
     });
 }
 
