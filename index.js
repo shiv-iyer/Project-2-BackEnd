@@ -100,12 +100,39 @@ async function main(){
         }
     });
 
-    // NEW APP.GET
-    app.get("/filtering", (req,res) => {
-        res.send("Filter yay");
+    // Filtering. Filter by deck to test archetype I guess, need to test on the posts collection
+    app.get("/search", async (req,res) => {
         console.log("Req query: " + req.query);
         // this will log if the query string (anything after ? in the url) has an email key value pair (e.g. "<url>/?email=<email value>") logs email value
-        console.log(req.query.email);
+        // console.log(req.query.email);
+
+        let listings;
+        // if statement to validate if the user wants to search by a query, check if our specific query string is undefined first (archetype), if not then they are searching
+        if (req.query.archetype === undefined){
+            // if there is no search, just retrieve everything
+            console.log("query.archetype is undefined");
+            listings = await db.collection(POSTS_COLLECTION)
+                            .find({})
+                            .toArray();
+        } else {
+            // otherwise, filter
+            // create the empty filter object, will be updated based on the query string
+            console.log("query archetype is not undefined");
+            // req.query.archetype first character always defaults to lowercase by default.
+            console.log(req.query.archetype);
+            const filter = {};
+            // convert the query first char to uppercase, then slice the String from index 1 to the end to concat together
+            upperArchetype = req.query.archetype.charAt(0).toUpperCase() + req.query.archetype.slice(1);
+            console.log(upperArchetype);
+            filter.archetype = upperArchetype;
+            console.log(filter.archetype);
+            listings = await db.collection(POSTS_COLLECTION)
+                            .find(filter)
+                            .toArray();
+        }
+
+        res.status(200);
+        res.json({listings});
     });
 }
 
@@ -113,7 +140,7 @@ async function main(){
 main();
 
 
-//  we can write listen first, so that we can ensure the route goes before
+//  we can write listen first, so that we can ensure every route goes before listening.
 app.listen(PORT, function(){
     console.log(`Server has started at http://localhost:${PORT}`);
 })
