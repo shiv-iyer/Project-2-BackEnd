@@ -4,6 +4,7 @@ const express = require("express");
 // require the env file, in order to safely retrieve the MongoDB URI. need to specify the path of the file, otherwise
 // will return undefined! require dotenv just finds a file called '.env' by default.
 require('dotenv').config();
+// import ObjectID so that we can use it for mongo documents.
 const {ObjectId} = require("mongodb");
 const app = express();
 const PORT = 3000;
@@ -62,7 +63,7 @@ async function main(){
     })
 
     // async can be an ARROW FUNCTION
-    app.post("/", async (req, res) => {
+    app.post("/insertion", async (req, res) => {
         console.log("req received")
         console.log("Req.body: " + req.body);
         // what must the document have? adding a new post test...
@@ -160,6 +161,23 @@ async function main(){
         res.json(response);
 
         // works! just remember to do content-type: Application/json, and raw in body in postman!
+    });
+
+    // now for the final part of CRUD functionality - D - delete.
+    app.delete("/deletion/:_id", async (req, res) => {
+        console.log("delete request received!");
+        const userID = req.params._id;
+
+        const response = await db.collection(USERS_COLLECTION)
+                                .deleteOne({
+                                    // the ID of the document to be deleted
+                                    "_id": new ObjectId(userID)
+                                });
+        res.status(200);
+        res.json({
+            "status": "okay",
+            "result": response
+        });    
     });
 }
 
