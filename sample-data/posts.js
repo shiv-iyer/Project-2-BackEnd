@@ -80,3 +80,12 @@ postMongoExample = {
             "dateOfUpdation": "2023-03-16"
         }]
     }
+
+postRequestNotation = 
+{
+    "name": "Giant Beatdown",
+    "overview": "This deck good sia",
+    "strategy": "Just do whatever and you will win",
+    "rating": 10,
+    "difficultyLevel": 4
+}
