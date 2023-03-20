@@ -63,7 +63,7 @@ async function main(){
     })
 
     // async can be an ARROW FUNCTION
-    app.post("/insertion", async (req, res) => {
+    app.post("/user", async (req, res) => {
         console.log("req received")
         console.log("Req.body: " + req.body);
         // what must the document have? adding a new post test...
@@ -101,6 +101,65 @@ async function main(){
             console.log(e);
         }
     });
+
+    // for posting a new comment, you need to create a new ObjectId()
+    // for posting to an embedded field, you do a POST request, updateOne, and then $push with the req body being the innermost params
+    // POST request to the posts collection
+    app.post("/post", async () =>{
+        console.log("POST request received");
+            if (!req.body.name){
+                // error 400
+                res.status(400);
+                res.json({
+                    "Error": "Please provide a post name!"
+                });
+                // end the function, skip the rest of the code.
+                return;
+            }
+
+            let deckList;
+            // find all of the cards first
+            try{
+                // find decks
+            } catch (e) {
+                                res.status(503);
+                res.send({
+                    error: "Internal server error. Please contact Haikal."
+                });
+                console.log(e);
+            }
+
+            try{
+            // insert a new document to the posts collection
+            const result = await db.collection(POSTS_COLLECTION).insertOne({
+                // all of the params for the post document
+
+                // get all the cards first and then insert it into the deck, be flexible in thinking process
+                "name": req.body.name,
+                "deck": deckList,//this should be an array at the end of the day find all the carsd based on the ID yo uinsert
+                // array of objects of cards,
+                "postInfo": {
+                    "overview": req.body.overview
+                }
+
+            });
+            res.status(200);
+            // send to the response body
+            //res.send(result);
+            res.json({result:result})
+            console.log("Request sent!");
+            
+            } catch (e){
+                res.status(503);
+                res.send({
+                    error: "Internal server error. Please contact Haikal."
+                });
+                console.log(e);
+            }
+               
+        
+    });
+
 
     // Filtering. Filter by deck to test archetype I guess, need to test on the posts collection
     app.get("/search", async (req,res) => {
