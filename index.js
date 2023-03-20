@@ -105,7 +105,7 @@ async function main(){
     // for posting a new comment, you need to create a new ObjectId()
     // for posting to an embedded field, you do a POST request, updateOne, and then $push with the req body being the innermost params
     // POST request to the posts collection
-    app.post("/post", async (req, res) =>{
+    app.post("/post", async (req, res) => {
         console.log("POST request received");
             if (!req.body.name){
                 // error 400
@@ -191,6 +191,56 @@ async function main(){
             }
                
         
+    });
+
+    // id to test on: Haikal Giant Beatdown 64180cd3a43add622dac9227
+    // add a new comment in the existing post (update post collection with the comment)
+    app.post("/comment/:post_id", async (req,res) => {
+        console.log("POST Request received!");
+        // add validation later
+        const results = await db.collection(POSTS_COLLECTION).updateOne({
+            // id of the document we want to update
+            "_id": new ObjectId(req.params.post_id)
+        }, {
+            // $push adds to the comments
+            "$push": {
+                "comments":
+                    {"userThatCommented": "kristina",
+                        "mainBody": req.body.mainBody,
+                        "_id": new ObjectId()
+                    }
+            }
+        }
+        );
+
+        // res.json is outside the updateOne
+        res.json({
+            "results": results
+        });
+    });
+
+    // update an existing comment in the post, pass in the post id and comment id as req params
+    // test on doc id: 64180cd3a43add622dac9227 and comment id: 6418336bedca3bef639c4fa3
+    app.put("/post/:post_id/comment/:comment_id", async (req,res) => {
+        console.log("received post request for updating comments!");
+        // both of these seem to be functional, so why is it not updating...
+        console.log("post id: " + req.params.post_id);
+        console.log("comment id " + req.params.comment_id);
+        const results = await db.collection(POSTS_COLLECTION).updateOne({
+            // id of the document that contains the comment we want to change
+            "_id": new ObjectId(req.params.post_id),
+            // id of the comment that we want to change
+            "comments._id": new ObjectId(req.params.comment_id)
+        }, {
+            "$set": {
+                "comments.$.mainBody": req.body.mainBody
+            }
+        });
+
+        // res.json is outside the updateOne
+        res.json({
+            "results": results
+        })
     });
 
 
