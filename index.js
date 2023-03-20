@@ -7,7 +7,7 @@ require('dotenv').config();
 // import ObjectID so that we can use it for mongo documents.
 const {ObjectId} = require("mongodb");
 const app = express();
-const PORT = 3000;
+const PORT = 4000;
 
 // app.use
 app.use(express.json());
@@ -105,7 +105,7 @@ async function main(){
     // for posting a new comment, you need to create a new ObjectId()
     // for posting to an embedded field, you do a POST request, updateOne, and then $push with the req body being the innermost params
     // POST request to the posts collection
-    app.post("/post", async () =>{
+    app.post("/post", async (req, res) =>{
         console.log("POST request received");
             if (!req.body.name){
                 // error 400
@@ -117,7 +117,7 @@ async function main(){
                 return;
             }
 
-            let deckList;
+            /*let deckList;
             // find all of the cards first
             try{
                 // find decks
@@ -127,7 +127,33 @@ async function main(){
                     error: "Internal server error. Please contact Haikal."
                 });
                 console.log(e);
-            }
+            }*/
+
+            // ultimately, deck will be an object. create a mock example of the deck first
+            const deck = {
+                // cards will be an array of 8 objects
+                "cards": [{"cardName": "Tesla"}],
+                "averageCost": 3.0,
+                "fourCardCycle": 7
+            };
+
+            // comments is also an array of objects, create a mock example first
+            const comments = [{
+                "userThatCommented": "Christine",
+                "mainBody": "Could be better...",
+                "userRating": 7,
+                "userDifficulty": 1,
+                "dateOfCreation": "2023-03-20",
+                "dateOfUpdation": null
+            },
+            {
+                "userThatCommented": "Doris",
+                "mainBody": "I love it!",
+                "userRating": 9,
+                "userDifficulty": 3,
+                "dateOfCreation": "2023-03-20",
+                "dateOfUpdation": "2023-03-20"
+            }]
 
             try{
             // insert a new document to the posts collection
@@ -136,12 +162,19 @@ async function main(){
 
                 // get all the cards first and then insert it into the deck, be flexible in thinking process
                 "name": req.body.name,
-                "deck": deckList,//this should be an array at the end of the day find all the carsd based on the ID yo uinsert
-                // array of objects of cards,
+                "userThatPosted": "Haikal",
+                "dateOfCreation": "2023-03-20",
+                "dateOfUpdation": null,
+                "deck": deck,//this should be an array at the end of the day find all the cards based on the ID you insert
+                // (array of objects of cards.)
+                "archetype": req.body.archetype,
                 "postInfo": {
-                    "overview": req.body.overview
-                }
-
+                    "overview": req.body.overview,
+                    "strategy": req.body.strategy,
+                    "rating": req.body.rating,
+                    "difficultyLevel": req.body.difficultyLevel
+                },
+                "comments": comments
             });
             res.status(200);
             // send to the response body
