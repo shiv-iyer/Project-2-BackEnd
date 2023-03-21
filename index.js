@@ -63,6 +63,7 @@ async function main(){
     })
 
     // async can be an ARROW FUNCTION
+    // for adding a new user
     app.post("/user", async (req, res) => {
         console.log("req received")
         console.log("Req.body: " + req.body);
@@ -243,6 +244,43 @@ async function main(){
         })
     });
 
+    // update an existing post.
+    // test on doc id: 64180cd3a43add622dac9227 (Haikal post)
+    app.put("/post/:post_id", async (req, res) => {
+        console.log("received post request for updating a post!");
+        console.log("post id: " + req.params.post_id);
+
+        // validation for if the user isn't updating the overview, can maybe change what is validated later, just test first
+        if (!req.body.overview){
+            // error 400
+            res.status(400);
+            res.json({
+                "Error": "Please update the post overview!"
+            });
+            // end the function, skip the rest of the code.
+            return;
+        }
+
+        const results = await db.collection(POSTS_COLLECTION).updateOne({
+            // id of the post
+            "_id": new ObjectId(req.params.post_id)
+        }, {
+            // looks like positional operator ($) is not needed if we are updating from outside (in this case from the
+            // ID of the overall post document), only if we are inside the field (ex. comment ID, updating a sibling field)
+            "$set": {
+                "postInfo": {
+                    "overview": req.body.overview,
+                    "rating": req.body.rating
+                }
+            }
+        });
+
+        // res.json once update one is done
+        res.json({
+            "results": results
+        })
+    });
+
 
     // Filtering. Filter by deck to test archetype I guess, need to test on the posts collection
     app.get("/search", async (req,res) => {
@@ -280,7 +318,7 @@ async function main(){
     });
 
     // PUT replaces one existing resource with an ENTIRELY NEW RESOURCE
-    // when writing in the URL, just put the ID, no need for a colon
+    // when writing in the URL, just put the ID, no need for a colon, colon denotes a route parameter  for express
     app.put("/user/:_id", async (req, res) => {
         const userID = req.params._id;
 
