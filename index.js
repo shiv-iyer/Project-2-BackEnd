@@ -140,18 +140,20 @@ async function main(){
             // find the card ID based on the param passed in from the user
             try {
                 const listings = await db.collection(CARDS_COLLECTION)
-                .find({cardsFilter})
+                // REMEMBER TO NOT PUT A NEW SET OF {} AROUND THIS, IT IS ALREADY AN OBJECT
+                .find(cardsFilter)
                 .toArray();
                 console.log("listings: " + listings);
 
                 // encapsulate  this in a for loop later, this logic is just for one example
                 // push to the cards array
                 cards.push({
-                    "cardName": // card name in listings, cardInfo.name
-                    "description": // description in listings, cardInfo.description
-                    "cardURL": // url in listings, listings.cardURL
+                    "cardName": listings[0].cardInfo.name, // card name in listings, cardInfo.name
+                    "description": listings[0].cardInfo.description, // description in listings, cardInfo.description
+                    "cardURL": listings[0].cardURL // url in listings, listings.cardURL
                 });
 
+                /*
                 // logic for incrementing deck elixir cost and cheapest 4 cards
                 totalDeckElixirCost += listings.cardInfo.elixirCost;
                 // create a new array to store each elixir cost, can later iterate and do some logic to find the 4 card cycle
@@ -159,9 +161,11 @@ async function main(){
 
                 // something like...
                 // find cheapest 4, sort array ? bubble sort... let's do it in a separate doc
-                /*for (let i in deckElixirAggregate){
+                for (let i in deckElixirAggregate){
 
                 }*/
+
+                console.log(cards[0]);
 
 
             } catch (e) {
