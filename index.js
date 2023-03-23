@@ -18,6 +18,7 @@ const mongoURI = process.env.MONGO_URI;
 const DATABASE = "RoyaleRavesDB";
 const POSTS_COLLECTION = "posts";
 const USERS_COLLECTION = "users";
+const CARDS_COLLECTION = "cards";
 
 // for Express to talk to Mongo, we need a client
 // this client is for nodejs
@@ -106,7 +107,7 @@ async function main(){
     // for posting a new comment, you need to create a new ObjectId()
     // for posting to an embedded field, you do a POST request, updateOne, and then $push with the req body being the innermost params
     // POST request to the posts collection
-    app.post("/post", async (req, res) => {
+    app.post("/post/:card_id", async (req, res) => {
         console.log("POST request received");
             if (!req.body.name){
                 // error 400
@@ -117,6 +118,60 @@ async function main(){
                 // end the function, skip the rest of the code.
                 return;
             }
+
+            // pass in card id from the params
+            const card_id = req.params.card_id;
+
+            // create an empty array first, will push to this based on cards found from the query.
+            let cards = [];
+
+
+            let totalDeckElixirCost;
+            let deckElixirAggregate = [];
+
+            // test card 1; Xbow
+            // id is 6412c055632f110d0e8812d0
+
+            const cardsFilter = {};
+            // how can i search by this id?
+            const xbowId = new ObjectId("6412c055632f110d0e8812d0");
+            cardsFilter._id = xbowId;
+
+            // find the card ID based on the param passed in from the user
+            try {
+                const listings = await db.collection(CARDS_COLLECTION)
+                .find({cardsFilter})
+                .toArray();
+                console.log("listings: " + listings);
+
+                // encapsulate  this in a for loop later, this logic is just for one example
+                // push to the cards array
+                cards.push({
+                    "cardName": // card name in listings, cardInfo.name
+                    "description": // description in listings, cardInfo.description
+                    "cardURL": // url in listings, listings.cardURL
+                });
+
+                // logic for incrementing deck elixir cost and cheapest 4 cards
+                totalDeckElixirCost += listings.cardInfo.elixirCost;
+                // create a new array to store each elixir cost, can later iterate and do some logic to find the 4 card cycle
+                deckElixirAggregate[i] = listings.cardInfo.elixirCost;
+
+                // something like...
+                // find cheapest 4, sort array ? bubble sort... let's do it in a separate doc
+                /*for (let i in deckElixirAggregate){
+
+                }*/
+
+
+            } catch (e) {
+                res.status(503);
+                res.send({
+                    error: "Internal server error. Please contact Haikal."
+                });
+            }
+
+
 
             /*let deckList;
             // find all of the cards first
@@ -131,6 +186,7 @@ async function main(){
             }*/
 
             // ultimately, deck will be an object. create a mock example of the deck first
+
             const deck = {
                 // cards will be an array of 8 objects
                 "cards": [{"cardName": "Tesla"}],
