@@ -7,7 +7,7 @@ require('dotenv').config();
 // import ObjectID so that we can use it for mongo documents.
 const {ObjectId} = require("mongodb");
 const app = express();
-const PORT = 4000;
+const PORT = 3000;
 
 // app.use
 app.use(express.json());
@@ -126,7 +126,9 @@ async function main(){
             let cards = [];
 
 
-            let totalDeckElixirCost;
+            // initialize as 0 so that JavaScript recognizes as an integer
+            let totalDeckElixirCost = 0;
+            // initialize empty array that will be populated later
             let deckElixirAggregate = [];
 
             // test card 1; Xbow
@@ -143,7 +145,7 @@ async function main(){
                 // REMEMBER TO NOT PUT A NEW SET OF {} AROUND THIS, IT IS ALREADY AN OBJECT
                 .find(cardsFilter)
                 .toArray();
-                console.log("listings: " + listings);
+                console.log("listings: " + JSON.stringify(listings[0]));
 
                 // encapsulate  this in a for loop later, this logic is just for one example
                 // push to the cards array
@@ -152,6 +154,10 @@ async function main(){
                     "description": listings[0].cardInfo.description, // description in listings, cardInfo.description
                     "cardURL": listings[0].cardURL // url in listings, listings.cardURL
                 });
+
+                // logic for incrementing deck elixir cost
+                totalDeckElixirCost += listings[0].cardInfo.elixirCost;
+                deckElixirAggregate.push(listings[0].cardInfo.elixirCost);
 
                 /*
                 // logic for incrementing deck elixir cost and cheapest 4 cards
@@ -165,7 +171,10 @@ async function main(){
 
                 }*/
 
+                console.log("Logging information...");
                 console.log(cards[0]);
+                console.log("Total deck elixir cost: " + totalDeckElixirCost);
+                console.log("Deck elixir aggregate array: " + deckElixirAggregate);
 
 
             } catch (e) {
@@ -174,20 +183,6 @@ async function main(){
                     error: "Internal server error. Please contact Haikal."
                 });
             }
-
-
-
-            /*let deckList;
-            // find all of the cards first
-            try{
-                // find decks
-            } catch (e) {
-                                res.status(503);
-                res.send({
-                    error: "Internal server error. Please contact Haikal."
-                });
-                console.log(e);
-            }*/
 
             // ultimately, deck will be an object. create a mock example of the deck first
 
@@ -217,41 +212,38 @@ async function main(){
             }]
 
             try{
-            // insert a new document to the posts collection
-            const result = await db.collection(POSTS_COLLECTION).insertOne({
-                // all of the params for the post document
+                // insert a new document to the posts collection
+                const result = await db.collection(POSTS_COLLECTION).insertOne({
+                    // all of the params for the post document
 
-                // get all the cards first and then insert it into the deck, be flexible in thinking process
-                "name": req.body.name,
-                "userThatPosted": "Haikal",
-                "dateOfCreation": "2023-03-20",
-                "dateOfUpdation": null,
-                "deck": deck,//this should be an array at the end of the day find all the cards based on the ID you insert
-                // (array of objects of cards.)
-                "archetype": req.body.archetype,
-                "postInfo": {
-                    "overview": req.body.overview,
-                    "strategy": req.body.strategy,
-                    "rating": req.body.rating,
-                    "difficultyLevel": req.body.difficultyLevel
-                },
-                "comments": comments
-            });
-            res.status(200);
-            // send to the response body
-            //res.send(result);
-            res.json({result:result})
-            console.log("Request sent!");
-            
+                    // get all the cards first and then insert it into the deck, be flexible in thinking process
+                    "name": req.body.name,
+                    "userThatPosted": "Haikal",
+                    "dateOfCreation": "2023-03-20",
+                    "dateOfUpdation": null,
+                    "deck": deck,//this should be an array at the end of the day find all the cards based on the ID you insert
+                    // (array of objects of cards.)
+                    "archetype": req.body.archetype,
+                    "postInfo": {
+                        "overview": req.body.overview,
+                        "strategy": req.body.strategy,
+                        "rating": req.body.rating,
+                        "difficultyLevel": req.body.difficultyLevel
+                    },
+                    "comments": comments
+                });
+                res.status(200);
+                // send to the response body
+                //res.send(result);
+                res.json({result:result})
+                console.log("Request sent!");
             } catch (e){
                 res.status(503);
                 res.send({
                     error: "Internal server error. Please contact Haikal."
                 });
                 console.log(e);
-            }
-               
-        
+            } 
     });
 
     // id to test on: Haikal Giant Beatdown 64180cd3a43add622dac9227
@@ -284,7 +276,6 @@ async function main(){
     // test on doc id: 64180cd3a43add622dac9227 and comment id: 6418336bedca3bef639c4fa3
     app.put("/post/:post_id/comment/:comment_id", async (req,res) => {
         console.log("received post request for updating comments!");
-        // both of these seem to be functional, so why is it not updating...
         console.log("post id: " + req.params.post_id);
         console.log("comment id " + req.params.comment_id);
         const results = await db.collection(POSTS_COLLECTION).updateOne({
