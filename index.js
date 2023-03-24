@@ -193,7 +193,7 @@ async function main(){
 
                 
 
-            // ultimately, deck will be an object. create a mock example of the deck first
+            // ultimately, deck will be an object. contains the array of cards and calculated elixir values
 
             const deck = {
                 // cards will be an array of 8 objects
@@ -246,6 +246,74 @@ async function main(){
         console.log("received post request for updating a deck in a post!");
         console.log("post id: " + req.params.post_id);
 
+        const newCards = req.body.cards;
+
+        // create an empty array first, will push to this based on cards found from the query.
+        const newDeck = [];
+
+        // initialize as 0 so that JavaScript recognizes as an integer
+        let totalDeckElixirCost = 0;
+        // initialize empty array that will be populated later
+        let deckElixirAggregate = [];
+
+        const cardsFilter = {};
+
+        // search by ID through the entire array, iterate through
+        for (let cardID of newCards){
+            console.log("card ID: " + cardID);
+            // create a new ObjectID for the ID to be searched in the database
+            cardsFilter._id = new ObjectId(cardID);
+            try {
+                // find by the ID
+                const listings = await db.collection(CARDS_COLLECTION)
+                .find(cardsFilter)
+                .toArray();
+                // test that this works first
+                console.log("listings: " + JSON.stringify(listings));
+                
+                // now, logic for adding to deckCards[] array and aggregating elixir info
+
+                // push card info to deckCards array
+                newDeck.push({
+                    "cardName": listings[0].cardInfo.name, // card name in listings, cardInfo.name
+                    "description": listings[0].cardInfo.description, // description in listings, cardInfo.description
+                    "cardURL": listings[0].cardURL // url in listings, listings.cardURL
+                });
+
+                // for adding to elixir variables
+                const cardElixirCost = listings[0].cardInfo.elixirCost;
+
+                totalDeckElixirCost += cardElixirCost;
+                deckElixirAggregate.push(cardElixirCost);
+
+            } catch (e) {
+                res.status(503);
+                res.send({
+                    error: "Internal server error. Please contact Haikal."
+                });
+            }
+        }
+
+        const deck = {
+            // cards will be an array of 8 objects
+            "cards": newDeck,
+            // average cost is the cost of 1 card, deck of 8 so divide by 8
+            "averageCost": (totalDeckElixirCost / 8),
+            "fourCardCycle": 7
+        };
+
+        console.log("Logging information...");
+        console.log(newDeck[0]);
+        console.log(newDeck[1]);
+        console.log(newDeck[2]);
+        console.log(newDeck[3]);
+        console.log(newDeck[4]);
+        console.log(newDeck[5]);
+        console.log(newDeck[6]);
+        console.log(newDeck[7]);
+        console.log("Total deck elixir cost: " + totalDeckElixirCost);
+        console.log("Deck elixir aggregate array: " + deckElixirAggregate);
+
         const results = await db.collection(POSTS_COLLECTION).updateOne({
             // id of the post
             "_id": new ObjectId(req.params.post_id)
@@ -253,9 +321,7 @@ async function main(){
             // looks like positional operator ($) is not needed if we are updating from outside (in this case from the
             // ID of the overall post document), only if we are inside the field (ex. comment ID, updating a sibling field)
             "$set": {
-                "postInfo": {
-                    "overview": req.body.overview,
-                }
+                "deck": deck
             }
         });
 
