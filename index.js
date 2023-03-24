@@ -155,6 +155,22 @@ async function main(){
                     .toArray();
                     // test that this works first
                     console.log("listings: " + JSON.stringify(listings));
+                    
+                    // now, logic for adding to deckCards[] array and aggregating elixir info
+
+                    // push card info to deckCards array
+                    deckCards.push({
+                        "cardName": listings[0].cardInfo.name, // card name in listings, cardInfo.name
+                        "description": listings[0].cardInfo.description, // description in listings, cardInfo.description
+                        "cardURL": listings[0].cardURL // url in listings, listings.cardURL
+                    });
+
+                    // for adding to elixir variables
+                    const cardElixirCost = listings[0].cardInfo.elixirCost;
+
+                    totalDeckElixirCost += cardElixirCost;
+                    deckElixirAggregate.push(cardElixirCost);
+
                 } catch (e) {
                     res.status(503);
                     res.send({
@@ -163,43 +179,13 @@ async function main(){
                 }
             }
 
-            // const xbowId = new ObjectId("6412c055632f110d0e8812d0");
-            // cardsFilter._id = xbowId;
-
-            
-            // find the card ID based on the param passed in from the user
-            // try {
-            //     const listings = await db.collection(CARDS_COLLECTION)
-            //     // REMEMBER TO NOT PUT A NEW SET OF {} AROUND THIS, IT IS ALREADY AN OBJECT
-            //     .find(cardsFilter)
-            //     .toArray();
-            //     console.log("listings: " + JSON.stringify(listings[0]));
-
-            //     // encapsulate  this in a for loop later, this logic is just for one example
-            //     // push to the cards array
-            //     deckCards.push({
-            //         "cardName": listings[0].cardInfo.name, // card name in listings, cardInfo.name
-            //         "description": listings[0].cardInfo.description, // description in listings, cardInfo.description
-            //         "cardURL": listings[0].cardURL // url in listings, listings.cardURL
-            //     });
-
-            //     // logic for incrementing deck elixir cost
-            //     /*
-            //     totalDeckElixirCost += listings[0].cardInfo.elixirCost;
-            //     deckElixirAggregate.push(listings[0].cardInfo.elixirCost); */
-
-            //     console.log("Logging information...");
-            //     console.log(deckCards[0]);
-            //     console.log("Total deck elixir cost: " + totalDeckElixirCost);
-            //     console.log("Deck elixir aggregate array: " + deckElixirAggregate);
-
-
-            // } catch (e) {
-            //     res.status(503);
-            //     res.send({
-            //         error: "Internal server error. Please contact Haikal."
-            //     });
-            // }
+                console.log("Logging information...");
+                console.log(deckCards[0]);
+                console.log(deckCards[1]);
+                console.log(deckCards[2]);
+                console.log(deckCards[3]);
+                console.log("Total deck elixir cost: " + totalDeckElixirCost);
+                console.log("Deck elixir aggregate array: " + deckElixirAggregate);
 
             // ultimately, deck will be an object. create a mock example of the deck first
 
