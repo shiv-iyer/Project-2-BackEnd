@@ -9,8 +9,15 @@ const {ObjectId} = require("mongodb");
 const app = express();
 const PORT = 3000;
 
+// need cors for Cross-Origin Resource Sharing, required to make requests for the API, for linking React to API
+// npm install cors required to link
+const cors = require("cors");
+
+// also remember to npm install axios in React
+
 // app.use
 app.use(express.json());
+app.use(cors());
 
 // retrieve URI (sensitive info) from .env file
 const mongoURI = process.env.MONGO_URI;
@@ -107,7 +114,9 @@ async function main(){
     // for posting a new comment, you need to create a new ObjectId()
     // for posting to an embedded field, you do a POST request, updateOne, and then $push with the req body being the innermost params
     // POST request to the posts collection
-    app.post("/post/:card_id", async (req, res) => {
+
+    // card IDs can't be posted in as a route parameter, should be part of the request's body
+    app.post("/post", async (req, res) => {
         console.log("POST request received");
             if (!req.body.name){
                 // error 400
@@ -119,70 +128,78 @@ async function main(){
                 return;
             }
 
-            // pass in card id from the params
-            const card_id = req.params.card_id;
+            // pass in the cards as an array, as part of the request's body
+            console.log("Req.body.cards info");
+            console.log(typeof(req.body.cards));
+            console.log(req.body.cards);
 
             // create an empty array first, will push to this based on cards found from the query.
-            let cards = [];
-
+            const deckCards = [];
 
             // initialize as 0 so that JavaScript recognizes as an integer
             let totalDeckElixirCost = 0;
             // initialize empty array that will be populated later
             let deckElixirAggregate = [];
 
-            // test card 1; Xbow
-            // id is 6412c055632f110d0e8812d0
-
             const cardsFilter = {};
-            // how can i search by this id?
-            const xbowId = new ObjectId("6412c055632f110d0e8812d0");
-            cardsFilter._id = xbowId;
 
-            // find the card ID based on the param passed in from the user
-            try {
-                const listings = await db.collection(CARDS_COLLECTION)
-                // REMEMBER TO NOT PUT A NEW SET OF {} AROUND THIS, IT IS ALREADY AN OBJECT
-                .find(cardsFilter)
-                .toArray();
-                console.log("listings: " + JSON.stringify(listings[0]));
-
-                // encapsulate  this in a for loop later, this logic is just for one example
-                // push to the cards array
-                cards.push({
-                    "cardName": listings[0].cardInfo.name, // card name in listings, cardInfo.name
-                    "description": listings[0].cardInfo.description, // description in listings, cardInfo.description
-                    "cardURL": listings[0].cardURL // url in listings, listings.cardURL
-                });
-
-                // logic for incrementing deck elixir cost
-                totalDeckElixirCost += listings[0].cardInfo.elixirCost;
-                deckElixirAggregate.push(listings[0].cardInfo.elixirCost);
-
-                /*
-                // logic for incrementing deck elixir cost and cheapest 4 cards
-                totalDeckElixirCost += listings.cardInfo.elixirCost;
-                // create a new array to store each elixir cost, can later iterate and do some logic to find the 4 card cycle
-                deckElixirAggregate[i] = listings.cardInfo.elixirCost;
-
-                // something like...
-                // find cheapest 4, sort array ? bubble sort... let's do it in a separate doc
-                for (let i in deckElixirAggregate){
-
-                }*/
-
-                console.log("Logging information...");
-                console.log(cards[0]);
-                console.log("Total deck elixir cost: " + totalDeckElixirCost);
-                console.log("Deck elixir aggregate array: " + deckElixirAggregate);
-
-
-            } catch (e) {
-                res.status(503);
-                res.send({
-                    error: "Internal server error. Please contact Haikal."
-                });
+            // search by ID through the entire array, iterate through
+            for (let cardID of req.body.cards){
+                console.log("card ID: " + cardID);
+                // create a new ObjectID for the ID to be searched in the database
+                cardsFilter._id = new ObjectId(cardID);
+                try {
+                    // find by the ID
+                    const listings = await db.collection(CARDS_COLLECTION)
+                    .find(cardsFilter)
+                    .toArray();
+                    // test that this works first
+                    console.log("listings: " + JSON.stringify(listings));
+                } catch (e) {
+                    res.status(503);
+                    res.send({
+                        error: "Internal server error. Please contact Haikal."
+                    });
+                }
             }
+
+            // const xbowId = new ObjectId("6412c055632f110d0e8812d0");
+            // cardsFilter._id = xbowId;
+
+            
+            // find the card ID based on the param passed in from the user
+            // try {
+            //     const listings = await db.collection(CARDS_COLLECTION)
+            //     // REMEMBER TO NOT PUT A NEW SET OF {} AROUND THIS, IT IS ALREADY AN OBJECT
+            //     .find(cardsFilter)
+            //     .toArray();
+            //     console.log("listings: " + JSON.stringify(listings[0]));
+
+            //     // encapsulate  this in a for loop later, this logic is just for one example
+            //     // push to the cards array
+            //     deckCards.push({
+            //         "cardName": listings[0].cardInfo.name, // card name in listings, cardInfo.name
+            //         "description": listings[0].cardInfo.description, // description in listings, cardInfo.description
+            //         "cardURL": listings[0].cardURL // url in listings, listings.cardURL
+            //     });
+
+            //     // logic for incrementing deck elixir cost
+            //     /*
+            //     totalDeckElixirCost += listings[0].cardInfo.elixirCost;
+            //     deckElixirAggregate.push(listings[0].cardInfo.elixirCost); */
+
+            //     console.log("Logging information...");
+            //     console.log(deckCards[0]);
+            //     console.log("Total deck elixir cost: " + totalDeckElixirCost);
+            //     console.log("Deck elixir aggregate array: " + deckElixirAggregate);
+
+
+            // } catch (e) {
+            //     res.status(503);
+            //     res.send({
+            //         error: "Internal server error. Please contact Haikal."
+            //     });
+            // }
 
             // ultimately, deck will be an object. create a mock example of the deck first
 
