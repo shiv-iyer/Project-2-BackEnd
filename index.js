@@ -179,17 +179,19 @@ async function main(){
                 }
             }
 
-                console.log("Logging information...");
-                console.log(deckCards[0]);
-                console.log(deckCards[1]);
-                console.log(deckCards[2]);
-                console.log(deckCards[3]);
-                console.log(deckCards[4]);
-                console.log(deckCards[5]);
-                console.log(deckCards[6]);
-                console.log(deckCards[7]);
-                console.log("Total deck elixir cost: " + totalDeckElixirCost);
-                console.log("Deck elixir aggregate array: " + deckElixirAggregate);
+            console.log("Logging information...");
+            console.log(deckCards[0]);
+            console.log(deckCards[1]);
+            console.log(deckCards[2]);
+            console.log(deckCards[3]);
+            console.log(deckCards[4]);
+            console.log(deckCards[5]);
+            console.log(deckCards[6]);
+            console.log(deckCards[7]);
+            console.log("Total deck elixir cost: " + totalDeckElixirCost);
+            console.log("Deck elixir aggregate array: " + deckElixirAggregate);
+
+                
 
             // ultimately, deck will be an object. create a mock example of the deck first
 
@@ -238,6 +240,32 @@ async function main(){
                 console.log(e);
             } 
     });
+
+    // final stage... test updating the post with a new deck of cards.
+    app.put("/post/updatedeck/:post_id", async (req, res) => {
+        console.log("received post request for updating a deck in a post!");
+        console.log("post id: " + req.params.post_id);
+
+        const results = await db.collection(POSTS_COLLECTION).updateOne({
+            // id of the post
+            "_id": new ObjectId(req.params.post_id)
+        }, {
+            // looks like positional operator ($) is not needed if we are updating from outside (in this case from the
+            // ID of the overall post document), only if we are inside the field (ex. comment ID, updating a sibling field)
+            "$set": {
+                "postInfo": {
+                    "overview": req.body.overview,
+                }
+            }
+        });
+
+        // res.json once update one is done
+        res.json({
+            "results": results
+        });
+
+    });
+    
 
     // id to test on: Haikal Giant Beatdown 64180cd3a43add622dac9227
     // add a new comment in the existing post (update post collection with the comment)
@@ -322,7 +350,7 @@ async function main(){
         // res.json once update one is done
         res.json({
             "results": results
-        })
+        });
     });
 
 
