@@ -184,6 +184,10 @@ async function main(){
                 console.log(deckCards[1]);
                 console.log(deckCards[2]);
                 console.log(deckCards[3]);
+                console.log(deckCards[4]);
+                console.log(deckCards[5]);
+                console.log(deckCards[6]);
+                console.log(deckCards[7]);
                 console.log("Total deck elixir cost: " + totalDeckElixirCost);
                 console.log("Deck elixir aggregate array: " + deckElixirAggregate);
 
@@ -191,28 +195,14 @@ async function main(){
 
             const deck = {
                 // cards will be an array of 8 objects
-                "cards": [{"cardName": "Tesla"}],
-                "averageCost": 3.0,
+                "cards": deckCards,
+                // average cost is the cost of 1 card, deck of 8 so divide by 8
+                "averageCost": (totalDeckElixirCost / 8),
                 "fourCardCycle": 7
             };
 
-            // comments is also an array of objects, create a mock example first
-            const comments = [{
-                "userThatCommented": "Christine",
-                "mainBody": "Could be better...",
-                "userRating": 7,
-                "userDifficulty": 1,
-                "dateOfCreation": "2023-03-20",
-                "dateOfUpdation": null
-            },
-            {
-                "userThatCommented": "Doris",
-                "mainBody": "I love it!",
-                "userRating": 9,
-                "userDifficulty": 3,
-                "dateOfCreation": "2023-03-20",
-                "dateOfUpdation": "2023-03-20"
-            }]
+            // comments is also an array of objects, empty array first
+            const comments = []
 
             try{
                 // insert a new document to the posts collection
