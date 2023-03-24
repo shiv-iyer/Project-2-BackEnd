@@ -246,6 +246,17 @@ async function main(){
         console.log("received post request for updating a deck in a post!");
         console.log("post id: " + req.params.post_id);
 
+        // if no cards are provided
+        if (!req.body.cards){
+            // error 400
+            res.status(400);
+            res.json({
+                "Error": "Please provide a new deck list with cards!"
+            });
+            // end the function, skip the rest of the code.
+            return;
+        }
+        
         const newCards = req.body.cards;
 
         // create an empty array first, will push to this based on cards found from the query.
