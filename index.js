@@ -53,16 +53,18 @@ async function main(){
     // first route, the home page
 
     // if we are doing await in app.get, the function needs to be an async function
-    app.get("/", async function(req,res){
+
+    // GET Endpoint to retrieve all posts in the posts collection
+    app.get("/posts", async function(req,res){
         // send any data to the server
         //res.send("YOOOOOooooo");
         console.log("req received");
         // select the first 3 documents
         // equivalent: db.posts.find({}).limit(3)
         // will take a while because it's an async function
-        const listings = await db.collection(USERS_COLLECTION)
+        const listings = await db.collection(POSTS_COLLECTION)
         .find({})
-        .limit(20 )
+        //.limit(20 )
         .toArray();
 
         // console log the listings to ensure that it works
@@ -116,7 +118,9 @@ async function main(){
     // POST request to the posts collection
 
     // card IDs can't be posted in as a route parameter, should be part of the request's body
-    app.post("/post", async (req, res) => {
+
+    // POST Endpoint to create a new post in the posts collection
+    app.post("/posts", async (req, res) => {
         console.log("POST request received");
             if (!req.body.name){
                 // error 400
@@ -162,7 +166,8 @@ async function main(){
                     deckCards.push({
                         "cardName": listings[0].cardInfo.name, // card name in listings, cardInfo.name
                         "description": listings[0].cardInfo.description, // description in listings, cardInfo.description
-                        "cardURL": listings[0].cardURL // url in listings, listings.cardURL
+                        "cardURL": listings[0].cardURL, // url in listings, listings.cardURL
+                        "cardID": cardID
                     });
 
                     // for adding to elixir variables
@@ -213,8 +218,8 @@ async function main(){
 
                     // get all the cards first and then insert it into the deck, be flexible in thinking process
                     "name": req.body.name,
-                    "userThatPosted": "Haikal",
-                    "dateOfCreation": "2023-03-20",
+                    "userThatPosted": req.body.userThatPosted,
+                    "dateOfCreation": req.body.date,
                     "dateOfUpdation": null,
                     "deck": deck,//this should be an array at the end of the day find all the cards based on the ID you insert
                     // (array of objects of cards.)
