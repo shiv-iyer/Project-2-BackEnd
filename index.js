@@ -246,6 +246,35 @@ async function main(){
             } 
     });
 
+    // updating the post
+    app.put("/posts/:post_id", async (req, res) => {
+        console.log("received post request for updating a post!");
+
+        const result = await db.collection(POSTS_COLLECTION).updateOne({
+            // id of the post
+            "_id": new ObjectId(req.params.post_id)
+        }, {
+            "$set": {
+                "name": req.body.name,
+                "dateOfUpdation": req.body.date,
+                // "deck": deck,//this should be an array at the end of the day find all the cards based on the ID you insert
+                // (array of objects of cards.) // do this later i guess
+                "archetype": req.body.archetype,
+                "postInfo": {
+                    "overview": req.body.overview,
+                    "strategy": req.body.strategy,
+                    "rating": req.body.rating,
+                    "difficultyLevel": req.body.difficultyLevel
+                },
+            }
+        });
+
+        // res.json once update one is done
+        res.json({
+            "results": result
+        });
+    });
+
     // final stage... test updating the post with a new deck of cards.
     app.put("/post/updatedeck/:post_id", async (req, res) => {
         console.log("received post request for updating a deck in a post!");
