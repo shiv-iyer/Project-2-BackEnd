@@ -196,6 +196,8 @@ async function main(){
             console.log("Total deck elixir cost: " + totalDeckElixirCost);
             console.log("Deck elixir aggregate array: " + deckElixirAggregate);
 
+            // test
+
                 
 
             // ultimately, deck will be an object. contains the array of cards and calculated elixir values
