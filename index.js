@@ -533,6 +533,12 @@ async function main(){
             searchCriteria['archetype'] = req.query.archetype.charAt(0).toUpperCase() + req.query.archetype.slice(1);
         }
 
+        if (req.query.minRating){
+            console.log("There is a minimum rating specified. AND IT IS");
+            console.log(req.query.minRating);
+            searchCriteria['postInfo.rating'] = {'$gte': parseInt(req.query.minRating)};
+        }
+
         // 3. return the listings 
         // when using .find(searchCriteria), do not put an extra pair of curly braces {}, it returns an empty result because it is incorrect.
 
