@@ -523,7 +523,7 @@ async function main(){
             // this MongoDB Regular Expression utilizes $options:"i" to perform a case-insensitive search.
             // further reference: https://www.mongodb.com/docs/manual/reference/operator/query/regex/
             // this looks to just include anything from the name, which is really useful!
-            searchCriteria['name'] = {$regex: req.query.name, $options:"i"}
+            searchCriteria['name'] = {$regex: req.query.name, $options:"i"};
         }
 
         if (req.query.archetype){
