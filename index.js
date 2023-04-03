@@ -516,20 +516,36 @@ async function main(){
         const searchCriteria = {};
 
         // 2. criteria
+
+        // if each parameter exists in the query string, add it to the search criteria.
+
+        if (req.query.name){
+            // this MongoDB Regular Expression utilizes $options:"i" to perform a case-insensitive search.
+            // further reference: https://www.mongodb.com/docs/manual/reference/operator/query/regex/
+            // this looks to just include anything from the name, which is really useful!
+            searchCriteria['name'] = {$regex: req.query.name, $options:"i"}
+        }
+
         if (req.query.archetype){
             console.log("There is an req.query.archetype, and it is " + req.query.archetype);
             // convert the first character in the string to uppercase, and then slice the remainder of the string, starting from index 1 till the end.
+            // just another fun way to ensure that the final result from the query is uppercase, since archetypes in the database are stored with capitalization.
             searchCriteria['archetype'] = req.query.archetype.charAt(0).toUpperCase() + req.query.archetype.slice(1);
         }
 
-        // return the listings 
+        // 3. return the listings 
         // when using .find(searchCriteria), do not put an extra pair of curly braces {}, it returns an empty result because it is incorrect.
+
+        // serachCriteria should be an empty object if there isn't a query string; aka this route can still work
+        // to retrieve all posts, if no criteria was specified.
+
         const listings = await db.collection(POSTS_COLLECTION)
                          .find(searchCriteria)
                          .toArray();
         
         console.log("Listings:");
         console.log(listings);
+        console.log("Number of listings found: " + listings.length);
 
         res.status(200);
         res.json({listings});
