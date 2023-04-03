@@ -510,15 +510,29 @@ async function main(){
     app.get("/posts", async (req, res) => {
         console.log("GET request to retrieve posts received!");
 
+        // Search engine
+
+        // 1. define an empty object to contain all the criteria that will be utilized to search
+        const searchCriteria = {};
+
+        // 2. criteria
+        if (req.query.archetype){
+            console.log("There is an req.query.archetype, and it is " + req.query.archetype);
+            // convert the first character in the string to uppercase, and then slice the remainder of the string, starting from index 1 till the end.
+            searchCriteria['archetype'] = req.query.archetype.charAt(0).toUpperCase() + req.query.archetype.slice(1);
+        }
+
         // return the listings 
+        // when using .find(searchCriteria), do not put an extra pair of curly braces {}, it returns an empty result because it is incorrect.
         const listings = await db.collection(POSTS_COLLECTION)
-                         .find({})
+                         .find(searchCriteria)
                          .toArray();
         
         console.log("Listings:");
         console.log(listings);
 
-        res.send({listings: listings});
+        res.status(200);
+        res.json({listings});
     });
 
     // PUT replaces one existing resource with an ENTIRELY NEW RESOURCE
