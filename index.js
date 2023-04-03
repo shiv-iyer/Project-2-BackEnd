@@ -533,10 +533,18 @@ async function main(){
             searchCriteria['archetype'] = req.query.archetype.charAt(0).toUpperCase() + req.query.archetype.slice(1);
         }
 
+        // rating search will be ascending (greater than or equal to); users would likely want a specified rating or higher
         if (req.query.minRating){
             console.log("There is a minimum rating specified. AND IT IS");
             console.log(req.query.minRating);
+            // access the embedded field rating within the field postInfo, no need for the $ positional operator here.
             searchCriteria['postInfo.rating'] = {'$gte': parseInt(req.query.minRating)};
+        }
+
+        // max difficulty will be descending (less than or equal to); users would likely want a specified max. difficulty ceiling
+        if (req.query.maxDifficulty){
+            console.log("maximum rating: " + req.query.maxDifficulty);
+            searchCriteria['postInfo.difficultyLevel'] = {'$lte': parseInt(req.query.maxDifficulty)};
         }
 
         // 3. return the listings 
