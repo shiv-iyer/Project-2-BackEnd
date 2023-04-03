@@ -55,22 +55,22 @@ async function main(){
     // if we are doing await in app.get, the function needs to be an async function
 
     // GET Endpoint to retrieve all posts in the posts collection
-    app.get("/posts", async function(req,res){
-        // send any data to the server
-        //res.send("YOOOOOooooo");
-        console.log("req received");
-        // select the first 3 documents
-        // equivalent: db.posts.find({}).limit(3)
-        // will take a while because it's an async function
-        const listings = await db.collection(POSTS_COLLECTION)
-        .find({})
-        //.limit(20 )
-        .toArray();
+    // app.get("/posts", async function(req,res){
+    //     // send any data to the server
+    //     //res.send("YOOOOOooooo");
+    //     console.log("req received");
+    //     // select the first 3 documents
+    //     // equivalent: db.posts.find({}).limit(3)
+    //     // will take a while because it's an async function
+    //     const listings = await db.collection(POSTS_COLLECTION)
+    //     .find({})
+    //     //.limit(20 )
+    //     .toArray();
 
-        // console log the listings to ensure that it works
-        console.log(listings);
-        res.send(listings);
-    })
+    //     // console log the listings to ensure that it works
+    //     console.log(listings);
+    //     res.send(listings);
+    // })
 
     // async can be an ARROW FUNCTION
     // for adding a new user
@@ -502,6 +502,23 @@ async function main(){
 
         res.status(200);
         res.json({listings});
+    });
+
+    // GET endpoint to retrieve all existing posts.
+    // Also implemented: search engine, which will filter according to the query string.
+    // If search engine criteria is empty, return back every post in the collection.
+    app.get("/posts", async (req, res) => {
+        console.log("GET request to retrieve posts received!");
+
+        // return the listings 
+        const listings = await db.collection(POSTS_COLLECTION)
+                         .find({})
+                         .toArray();
+        
+        console.log("Listings:");
+        console.log(listings);
+
+        res.send({listings: listings});
     });
 
     // PUT replaces one existing resource with an ENTIRELY NEW RESOURCE
