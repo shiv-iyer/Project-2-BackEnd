@@ -466,6 +466,8 @@ async function main(){
 
 
     // Filtering. Filter by deck to test archetype I guess, need to test on the posts collection
+
+    // TODO other filters: post name (includes), deck rating & difficulty (specified rating/difficulty and above)
     app.get("/search", async (req,res) => {
         console.log("Req query: " + req.query);
         // this will log if the query string (anything after ? in the url) has an email key value pair (e.g. "<url>/?email=<email value>") logs email value
