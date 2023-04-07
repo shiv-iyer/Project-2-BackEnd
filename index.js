@@ -526,32 +526,43 @@ async function main(){
             searchCriteria['name'] = {$regex: req.query.name, $options:"i"};
         }
 
-        if (req.query.archetype){
+        if (req.query.archetype && req.query.archetype.replace(/\s/g, '').length){
             console.log("There is an req.query.archetype, and it is " + req.query.archetype);
             // convert the first character in the string to uppercase, and then slice the remainder of the string, starting from index 1 till the end.
             // just another fun way to ensure that the final result from the query is uppercase, since archetypes in the database are stored with capitalization.
-            searchCriteria['archetype'] = req.query.archetype.charAt(0).toUpperCase() + req.query.archetype.slice(1);
+            // trim any archetype trailing spaces
+
+            // so the issue is that leaving archetype blank results in it breaking, because there are no archetypes in the database that have a blank space.
+            // solution should be fixed now! with the regex to check for empty spaces, ensure that it isn't empty spaces only
+            searchCriteria['archetype'] = req.query.archetype.charAt(0).toUpperCase() + req.query.archetype.slice(1).trim();
         }
 
         // rating search will be ascending (greater than or equal to); users would likely want a specified rating or higher
-        if (req.query.minRating){
+        if (req.query.minRating) {
             console.log("There is a minimum rating specified. AND IT IS");
             console.log(req.query.minRating);
             // access the embedded field rating within the field postInfo, no need for the $ positional operator here.
-            searchCriteria['postInfo.rating'] = {'$gte': parseInt(req.query.minRating)};
-        }
-
-        // max difficulty will be descending (less than or equal to); users would likely want a specified max. difficulty ceiling
-        if (req.query.maxDifficulty){
-            console.log("maximum rating: " + req.query.maxDifficulty);
-            searchCriteria['postInfo.difficultyLevel'] = {'$lte': parseInt(req.query.maxDifficulty)};
-        }
+            if (!searchCriteria['postInfo.rating']) {
+              searchCriteria['postInfo.rating'] = {};
+            }
+            searchCriteria['postInfo.rating']['$gte'] = parseInt(req.query.minRating);
+          }
+          
+                  // max difficulty will be descending (less than or equal to); users would likely want a specified max. difficulty ceiling
+          if (req.query.maxDifficulty) {
+            console.log("maximum difficulty: " + req.query.maxDifficulty);
+            if (!searchCriteria['postInfo.difficultyLevel']) {
+              searchCriteria['postInfo.difficultyLevel'] = {};
+            }
+            searchCriteria['postInfo.difficultyLevel']['$lte'] = parseInt(req.query.maxDifficulty);
+          }
 
         // 3. return the listings 
         // when using .find(searchCriteria), do not put an extra pair of curly braces {}, it returns an empty result because it is incorrect.
 
         // serachCriteria should be an empty object if there isn't a query string; aka this route can still work
         // to retrieve all posts, if no criteria was specified.
+        console.log(searchCriteria);
 
         const listings = await db.collection(POSTS_COLLECTION)
                          .find(searchCriteria)
