@@ -560,7 +560,8 @@ async function main(){
 main();
 
 
-//  we can write listen first, so that we can ensure every route goes before listening.
-app.listen(PORT, function(){
+//  we can write the code for listen first, so that we can ensure every route goes before listening.
+// include listen at the very end of everything
+app.listen(process.env.PORT || 3000, function(){
     console.log(`Server has started at http://localhost:${PORT}`);
-})
+});
