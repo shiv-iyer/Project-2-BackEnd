@@ -478,6 +478,24 @@ async function main(){
         res.json({listings});
     });
 
+    // DELETE endpoint to delete an existing post.
+    app.delete("/posts/:post_id", async (req, res) => {
+        console.log("Delete request received!");
+        const postID = req.params.post_id;
+
+        const response = await db.collection(POSTS_COLLECTION)
+                                .deleteOne({
+                                    // the ID of the document to be deleted
+                                    "_id": new ObjectId(postID)
+                                });
+        res.status(200);
+        res.json({
+            "status": "okay",
+            "result": response
+        });    
+    })
+    
+
     // PUT replaces one existing resource with an ENTIRELY NEW RESOURCE
     // when writing in the URL, just put the ID, no need for a colon, colon denotes a route parameter  for express
     app.put("/user/:_id", async (req, res) => {
