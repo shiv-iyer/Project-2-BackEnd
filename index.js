@@ -229,8 +229,8 @@ async function main(){
                     "postInfo": {
                         "overview": req.body.overview,
                         "strategy": req.body.strategy,
-                        "rating": req.body.rating,
-                        "difficultyLevel": req.body.difficultyLevel
+                        "rating": parseInt(req.body.rating),
+                        "difficultyLevel": parseInt(req.body.difficultyLevel)
                     },
                     "comments": comments
                 });
