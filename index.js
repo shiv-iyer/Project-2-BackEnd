@@ -618,6 +618,22 @@ async function main(){
             "result": response
         });    
     });
+
+    // get all cards
+    app.get("/cards", async (req, res) => {
+        
+        const listings = await db.collection(CARDS_COLLECTION)
+                        // find all documents
+                         .find({})
+                         .toArray();
+        
+        console.log("Total card listings:");
+        console.log(listings);
+        console.log("Number of listings found: " + listings.length);
+
+        res.status(200);
+        res.json({listings});
+    });
 }
 
 // call main before listening
