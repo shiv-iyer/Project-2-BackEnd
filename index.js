@@ -49,29 +49,6 @@ async function main(){
     // mongo db to connect to, HAVE TO AWAIT
     const db = await connect(mongoURI, DATABASE);
 
-    // sanity test to see that our server works
-    // first route, the home page
-
-    // if we are doing await in app.get, the function needs to be an async function
-
-    // GET Endpoint to retrieve all posts in the posts collection
-    // app.get("/posts", async function(req,res){
-    //     // send any data to the server
-    //     //res.send("YOOOOOooooo");
-    //     console.log("req received");
-    //     // select the first 3 documents
-    //     // equivalent: db.posts.find({}).limit(3)
-    //     // will take a while because it's an async function
-    //     const listings = await db.collection(POSTS_COLLECTION)
-    //     .find({})
-    //     //.limit(20 )
-    //     .toArray();
-
-    //     // console log the listings to ensure that it works
-    //     console.log(listings);
-    //     res.send(listings);
-    // })
-
     // async can be an ARROW FUNCTION
     // for adding a new user
     app.post("/user", async (req, res) => {
@@ -427,81 +404,6 @@ async function main(){
         res.json({
             "results": results
         })
-    });
-
-    // update an existing post.
-    // test on doc id: 64180cd3a43add622dac9227 (Haikal post)
-    app.put("/post/:post_id", async (req, res) => {
-        console.log("received post request for updating a post!");
-        console.log("post id: " + req.params.post_id);
-
-        // validation for if the user isn't updating the overview, can maybe change what is validated later, just test first
-        if (!req.body.overview){
-            // error 400
-            res.status(400);
-            res.json({
-                "Error": "Please update the post overview!"
-            });
-            // end the function, skip the rest of the code.
-            return;
-        }
-
-        const results = await db.collection(POSTS_COLLECTION).updateOne({
-            // id of the post
-            "_id": new ObjectId(req.params.post_id)
-        }, {
-            // looks like positional operator ($) is not needed if we are updating from outside (in this case from the
-            // ID of the overall post document), only if we are inside the field (ex. comment ID, updating a sibling field)
-            "$set": {
-                "postInfo": {
-                    "overview": req.body.overview,
-                    "rating": req.body.rating
-                }
-            }
-        });
-
-        // res.json once update one is done
-        res.json({
-            "results": results
-        });
-    });
-
-
-    // Filtering. Filter by deck to test archetype I guess, need to test on the posts collection
-
-    // TODO other filters: post name (includes), deck rating & difficulty (specified rating/difficulty and above)
-    app.get("/search", async (req,res) => {
-        console.log("Req query: " + req.query);
-        // this will log if the query string (anything after ? in the url) has an email key value pair (e.g. "<url>/?email=<email value>") logs email value
-        // console.log(req.query.email);
-
-        let listings;
-        // if statement to validate if the user wants to search by a query, check if our specific query string is undefined first (archetype), if not then they are searching
-        if (req.query.archetype === undefined){
-            // if there is no search, just retrieve everything
-            console.log("query.archetype is undefined");
-            listings = await db.collection(POSTS_COLLECTION)
-                            .find({})
-                            .toArray();
-        } else {
-            // otherwise, filter
-            // create the empty filter object, will be updated based on the query string
-            console.log("query archetype is not undefined");
-            // req.query.archetype first character always defaults to lowercase by default.
-            console.log(req.query.archetype);
-            const filter = {};
-            // convert the query first char to uppercase, then slice the String from index 1 to the end to concat together
-            upperArchetype = req.query.archetype.charAt(0).toUpperCase() + req.query.archetype.slice(1);
-            console.log(upperArchetype);
-            filter.archetype = upperArchetype;
-            console.log(filter.archetype);
-            listings = await db.collection(POSTS_COLLECTION)
-                            .find(filter)
-                            .toArray();
-        }
-
-        res.status(200);
-        res.json({listings});
     });
 
     // GET endpoint to retrieve all existing posts.
